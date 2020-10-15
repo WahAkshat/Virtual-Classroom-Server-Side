@@ -120,6 +120,7 @@ public class server_frame extends javax.swing.JFrame {
     private void b_endActionPerformed(java.awt.event.ActionEvent evt) {
         tellEveryone("Virtual Classroom Server:is stopping and all users will be disconnected.\n:Chat");
         ta_chat.append("Virtual Classroom Server stopping... \n");
+        System.exit(0);
 
     }
 
