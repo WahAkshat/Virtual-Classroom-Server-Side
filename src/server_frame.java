@@ -30,33 +30,30 @@ public class server_frame extends javax.swing.JFrame {
             String[] data;
             try {
                 while ((message = reader.readLine()) != null) {
-                    ta_chat.append("Received: " + message + "\n");
-                    data = message.split(":");
+                    ta_chat.append("Received- " + message + "\n");
+                    data = message.split("-");
 
                     for (String token : data) {
                         ta_chat.append(token + "\n");
                     }
                     if (data[2].equals(connect)) {
-                        tellEveryone((data[0] + ":" + data[1] + ":" + chat));
+                        tellEveryone((data[0] + "-" + data[1] + "-" + chat));
                         userAdd(data[0]);
                     } else if (data[2].equals(disconnect)) {
-                        tellEveryone((data[0] + ":has disconnected." + ":" + chat));
+                        tellEveryone((data[0] + "-has disconnected." + "-" + chat));
                         userRemove(data[0]);
                     } else if (data[2].equals(chat)) {
                         tellEveryone(message);
-
                    }
 
                     else if (data[2].equals(send)) {
                         System.out.println("Yes received till this point");
-                        tellEveryone((data[0] + ":" + " has sent a file "+ ":" + send));
                         receiveFile();
 
                     }
                     else if (data[2].equals(receive)) {
-                        tellEveryone((data[0] + ":" + " has received the file "+ ":" + receive));
-                        sendFile(data[1]);
-
+                        System.out.println(data[1]);
+                       sendFile(data[1]);
                     }
 
                     else {
@@ -81,15 +78,14 @@ public class server_frame extends javax.swing.JFrame {
 
             String fileName = clientData.readUTF();
             OutputStream output = new FileOutputStream(fileName);
-            long size = clientData.readLong();
+            long size = clientData.available();
             byte[] buffer = new byte[1024];
             while (size > 0 && (bytesRead = clientData.read(buffer, 0, (int) Math.min(buffer.length, size))) != -1) {
                 output.write(buffer, 0, bytesRead);
                 size -= bytesRead;
             }
 
-            output.close();
-            clientData.close();
+            output.flush();
 
             System.out.println("File "+fileName+" received from client.");
         } catch (Exception ex) {
@@ -102,6 +98,11 @@ public class server_frame extends javax.swing.JFrame {
 
             File myFile = new File(fileName);  //handle file reading
             byte[] mybytearray = new byte[(int) myFile.length()];
+
+            if(!myFile.exists()) {
+                System.out.println("File does not exist..");
+                return;
+            }
 
             FileInputStream fis = new FileInputStream(myFile);
             BufferedInputStream bis = new BufferedInputStream(fis);
@@ -244,7 +245,7 @@ public class server_frame extends javax.swing.JFrame {
     }
 
     public void userAdd(String data) {
-        String message, add = ": :Connect", done = "Server: :Done", name = data;
+        String message, add = "- -Connect", done = "Server- -Done", name = data;
         ta_chat.append("Before " + name + " added. \n");
         users.add(name);
         ta_chat.append("After " + name + " added. \n");
@@ -258,7 +259,7 @@ public class server_frame extends javax.swing.JFrame {
     }
 
     public void userRemove(String data) {
-        String message, add = ": :Connect", done = "Server: :Done", name = data;
+        String message, add = "- -Connect", done = "Server- -Done", name = data;
         users.remove(name);
         String[] tempList = new String[(users.size())];
         users.toArray(tempList);
@@ -278,7 +279,7 @@ public class server_frame extends javax.swing.JFrame {
                 PrintWriter writer = (PrintWriter) it.next();
 
                 writer.println(message);
-                ta_chat.append("Sending: " + message + "\n");
+                ta_chat.append("Sending- " + message + "\n");
 
                 writer.flush();
                 ta_chat.setCaretPosition(ta_chat.getDocument().getLength());
