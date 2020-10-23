@@ -49,12 +49,12 @@ public class server_frame extends javax.swing.JFrame {
 
                     else if (data[2].equals(send)) {
                         System.out.println("Yes received till this point");
-                        tellEveryone((data[0] + "<->" + " has sent a file "+ "<->" + send));
+                        tellEveryone((data[0] + ":" + " has sent a file "+ ":" + send));
                         receiveFile();
 
                     }
                     else if (data[2].equals(receive)) {
-                        tellEveryone((data[0] + "<->" + " has received the file "+ "<->" + receive));
+                        tellEveryone((data[0] + ":" + " has received the file "+ ":" + receive));
                         sendFile(data[1]);
 
                     }
