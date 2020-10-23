@@ -5,16 +5,17 @@ import java.util.*;
 public class server_frame extends javax.swing.JFrame {
     ArrayList clientOutputStreams;
     ArrayList<String> users;
+    Socket sock;
 
     public class ClientHandler implements Runnable {
         BufferedReader reader;
-        Socket sock;
+
         PrintWriter client;
 
-        public ClientHandler(Socket sock, PrintWriter client) {
+         public ClientHandler(Socket sock1, PrintWriter client) {
             this.client = client;
             try {
-                this.sock = sock;
+                sock = sock1;
                 InputStreamReader isReader = new InputStreamReader(sock.getInputStream());
                 reader = new BufferedReader(isReader);
             } catch (Exception ex) {
@@ -22,15 +23,15 @@ public class server_frame extends javax.swing.JFrame {
             }
         }
 
+
         @Override
         public void run() {
-            String message, connect = "Connect", disconnect = "Disconnect", chat = "Chat";
+            String message, connect = "Connect", disconnect = "Disconnect", chat = "Chat",send="Send",receive="Receive";
             String[] data;
             try {
                 while ((message = reader.readLine()) != null) {
                     ta_chat.append("Received: " + message + "\n");
                     data = message.split(":");
-
 
                     for (String token : data) {
                         ta_chat.append(token + "\n");
@@ -43,7 +44,22 @@ public class server_frame extends javax.swing.JFrame {
                         userRemove(data[0]);
                     } else if (data[2].equals(chat)) {
                         tellEveryone(message);
-                    } else {
+
+                   }
+
+                    else if (data[2].equals(send)) {
+                        System.out.println("Yes received till this point");
+                        tellEveryone((data[0] + "<->" + " has sent a file "+ "<->" + send));
+                        receiveFile();
+
+                    }
+                    else if (data[2].equals(receive)) {
+                        tellEveryone((data[0] + "<->" + " has received the file "+ "<->" + receive));
+                        sendFile(data[1]);
+
+                    }
+
+                    else {
                         ta_chat.append("No Conditions were met. \n");
                     }
                 }
@@ -52,6 +68,58 @@ public class server_frame extends javax.swing.JFrame {
                 ex.printStackTrace();
                 clientOutputStreams.remove(client);
             }
+
+
+        }
+    }
+
+    public void receiveFile() {
+        try {
+            int bytesRead;
+
+            DataInputStream clientData = new DataInputStream(sock.getInputStream());
+
+            String fileName = clientData.readUTF();
+            OutputStream output = new FileOutputStream(fileName);
+            long size = clientData.readLong();
+            byte[] buffer = new byte[1024];
+            while (size > 0 && (bytesRead = clientData.read(buffer, 0, (int) Math.min(buffer.length, size))) != -1) {
+                output.write(buffer, 0, bytesRead);
+                size -= bytesRead;
+            }
+
+            output.close();
+            clientData.close();
+
+            System.out.println("File "+fileName+" received from client.");
+        } catch (Exception ex) {
+            System.err.println("Client error. Connection closed.");
+        }
+    }
+
+    public void sendFile(String fileName) {
+        try {
+
+            File myFile = new File(fileName);  //handle file reading
+            byte[] mybytearray = new byte[(int) myFile.length()];
+
+            FileInputStream fis = new FileInputStream(myFile);
+            BufferedInputStream bis = new BufferedInputStream(fis);
+
+            DataInputStream dis = new DataInputStream(bis);
+            dis.readFully(mybytearray, 0, mybytearray.length);
+
+
+            OutputStream os = sock.getOutputStream();  //handle file send over socket
+
+            DataOutputStream dos = new DataOutputStream(os); //Sending file name and file size to the server
+            dos.writeUTF(myFile.getName());
+            dos.writeLong(mybytearray.length);
+            dos.write(mybytearray, 0, mybytearray.length);
+            dos.flush();
+            System.out.println("File "+fileName+" sent to client.");
+        } catch (Exception e) {
+            System.err.println("File does not exist!");
         }
     }
 
