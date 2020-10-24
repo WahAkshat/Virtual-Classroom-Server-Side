@@ -139,6 +139,7 @@ public class server_frame extends javax.swing.JFrame {
 
         setTitle("Virtual Classroom Server's frame");
         setName("server");
+
         setResizable(false);
         ta_chat.setColumns(20);
         ta_chat.setRows(5);
@@ -215,7 +216,10 @@ public class server_frame extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new server_frame().setVisible(true);
+                server_frame sf = new server_frame();
+                sf.setVisible(true);
+                sf.setBackground(Color.orange);
+
             }
         });
     }
