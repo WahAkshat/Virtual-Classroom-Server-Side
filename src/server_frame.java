@@ -78,7 +78,7 @@ public class server_frame extends javax.swing.JFrame {
 
             String fileName = clientData.readUTF();
             OutputStream output = new FileOutputStream(fileName);
-            long size = clientData.readLong();
+            long size = clientData.available();
             byte[] buffer = new byte[1024];
             while (size > 0 && (bytesRead = clientData.read(buffer, 0, (int) Math.min(buffer.length, size))) != -1) {
                 output.write(buffer, 0, bytesRead);
@@ -94,7 +94,6 @@ public class server_frame extends javax.swing.JFrame {
     }
 
     public void sendFile(String fileName) {
-        System.out.println(fileName);
         try {
 
             File myFile = new File(fileName);  //handle file reading
@@ -124,37 +123,6 @@ public class server_frame extends javax.swing.JFrame {
             System.err.println("File does not exist!");
         }
     }
-
-//    public void sendFile(String fileName) {
-//        try {
-//
-//            File myFile = new File(fileName);
-//            byte[] mybytearray = new byte[(int) myFile.length()];
-//            if(!myFile.exists()) {
-//                System.out.println("File does not exist..");
-//                return;
-//            }
-//
-//            FileInputStream fis = new FileInputStream(myFile);
-//            BufferedInputStream bis = new BufferedInputStream(fis);
-//            //bis.read(mybytearray, 0, mybytearray.length);
-//
-//            DataInputStream dis = new DataInputStream(bis);
-//            dis.readFully(mybytearray, 0, mybytearray.length);
-//
-//            OutputStream os = sock.getOutputStream();
-//
-//            //Sending file name and file size to the server
-//            DataOutputStream dos = new DataOutputStream(os);
-//            dos.writeUTF(myFile.getName());
-//            dos.writeLong(mybytearray.length);
-//            dos.write(mybytearray, 0, mybytearray.length);
-//            dos.flush();
-//            System.out.println("File "+fileName+" sent to Client.");
-//        } catch (Exception e) {
-//            System.err.println("Exceptionnnn: "+e);
-//        }
-//    }
 
     public server_frame() {
         initComponents();
