@@ -12,7 +12,7 @@ public class server_frame extends javax.swing.JFrame {
 
         PrintWriter client;
 
-         public ClientHandler(Socket sock1, PrintWriter client) {
+        public ClientHandler(Socket sock1, PrintWriter client) {
             this.client = client;
             try {
                 sock = sock1;
@@ -44,7 +44,7 @@ public class server_frame extends javax.swing.JFrame {
                         userRemove(data[0]);
                     } else if (data[2].equals(chat)) {
                         tellEveryone(message);
-                   }
+                    }
 
                     else if (data[2].equals(send)) {
                         System.out.println("Yes received till this point");
@@ -53,7 +53,7 @@ public class server_frame extends javax.swing.JFrame {
                     }
                     else if (data[2].equals(receive)) {
                         System.out.println(data[1]);
-                       sendFile(data[1]);
+                        sendFile(data[1]);
                     }
 
                     else {
@@ -125,6 +125,36 @@ public class server_frame extends javax.swing.JFrame {
         }
     }
 
+//    public void sendFile(String fileName) {
+//        try {
+//
+//            File myFile = new File(fileName);
+//            byte[] mybytearray = new byte[(int) myFile.length()];
+//            if(!myFile.exists()) {
+//                System.out.println("File does not exist..");
+//                return;
+//            }
+//
+//            FileInputStream fis = new FileInputStream(myFile);
+//            BufferedInputStream bis = new BufferedInputStream(fis);
+//            //bis.read(mybytearray, 0, mybytearray.length);
+//
+//            DataInputStream dis = new DataInputStream(bis);
+//            dis.readFully(mybytearray, 0, mybytearray.length);
+//
+//            OutputStream os = sock.getOutputStream();
+//
+//            //Sending file name and file size to the server
+//            DataOutputStream dos = new DataOutputStream(os);
+//            dos.writeUTF(myFile.getName());
+//            dos.writeLong(mybytearray.length);
+//            dos.write(mybytearray, 0, mybytearray.length);
+//            dos.flush();
+//            System.out.println("File "+fileName+" sent to Client.");
+//        } catch (Exception e) {
+//            System.err.println("Exceptionnnn: "+e);
+//        }
+//    }
 
     public server_frame() {
         initComponents();
@@ -141,6 +171,7 @@ public class server_frame extends javax.swing.JFrame {
 
         setTitle("Virtual Classroom Server's frame");
         setName("server");
+
         setResizable(false);
         ta_chat.setColumns(20);
         ta_chat.setRows(5);
@@ -217,7 +248,10 @@ public class server_frame extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new server_frame().setVisible(true);
+                server_frame sf = new server_frame();
+                sf.setVisible(true);
+                sf.setBackground(Color.orange);
+
             }
         });
     }
