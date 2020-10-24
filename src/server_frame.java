@@ -6,6 +6,7 @@ public class server_frame extends javax.swing.JFrame {
     ArrayList clientOutputStreams;
     ArrayList<String> users;
     Socket sock;
+    ServerSocket serverSocket;
 
     public class ClientHandler implements Runnable {
         BufferedReader reader;
@@ -49,11 +50,13 @@ public class server_frame extends javax.swing.JFrame {
                     else if (data[2].equals(send)) {
                         System.out.println("Yes received till this point");
                         receiveFile();
+                        tellEveryone((data[0] + "-" + data[1] + "-" + send));
 
                     }
                     else if (data[2].equals(receive)) {
                         System.out.println(data[1]);
                         sendFile(data[1]);
+                        tellEveryone((data[0] + "-" + data[1] + "-" + receive));
                     }
 
                     else {
@@ -77,6 +80,8 @@ public class server_frame extends javax.swing.JFrame {
             DataInputStream clientData = new DataInputStream(sock.getInputStream());
 
             String fileName = clientData.readUTF();
+
+            System.out.println("Received file"+fileName);
             OutputStream output = new FileOutputStream(fileName);
             long size = clientData.readLong();
             byte[] buffer = new byte[1024];
@@ -84,6 +89,8 @@ public class server_frame extends javax.swing.JFrame {
                 output.write(buffer, 0, bytesRead);
                 size -= bytesRead;
             }
+
+//            System.out.println(Arrays.toString(buffer));
 
             output.flush();
 
@@ -110,6 +117,8 @@ public class server_frame extends javax.swing.JFrame {
 
             DataInputStream dis = new DataInputStream(bis);
             dis.readFully(mybytearray, 0, mybytearray.length);
+
+            System.out.println(Arrays.toString(mybytearray));
 
 
             OutputStream os = sock.getOutputStream();  //handle file send over socket
@@ -263,6 +272,7 @@ public class server_frame extends javax.swing.JFrame {
             users = new ArrayList();
             try {
                 ServerSocket serverSock = new ServerSocket(0007);
+                serverSocket = serverSock;
                 while (true) {
 
                     Socket clientSock = serverSock.accept();
