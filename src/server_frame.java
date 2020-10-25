@@ -124,9 +124,9 @@ public class server_frame extends javax.swing.JFrame {
             OutputStream os = sock.getOutputStream();  //handle file send over socket
 
             DataOutputStream dos = new DataOutputStream(os); //Sending file name and file size to the server
-            dos.writeUTF(myFile.getName());
-            dos.writeLong(mybytearray.length);
-            dos.write(mybytearray, 0, mybytearray.length);
+//            dos.writeUTF(myFile.getName());
+//            dos.writeLong(mybytearray.length);
+            dos.write(mybytearray);
             dos.flush();
             System.out.println("File "+fileName+" sent to client.");
         } catch (Exception e) {
