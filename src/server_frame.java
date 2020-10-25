@@ -2,17 +2,18 @@ import java.awt.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+
 public class server_frame extends javax.swing.JFrame {
+    //global variables
     ArrayList clientOutputStreams;
     ArrayList<String> users;
     Socket sock;
     ServerSocket serverSocket;
 
-    public class ClientHandler implements Runnable {
+    public class ClientHandler implements Runnable
+    {
         BufferedReader reader;
-
         PrintWriter client;
-
         public ClientHandler(Socket sock1, PrintWriter client) {
             this.client = client;
             try {
@@ -23,17 +24,15 @@ public class server_frame extends javax.swing.JFrame {
                 ta_chat.append("Unexpected error occurred... \n");
             }
         }
-
-
         @Override
-        public void run() {
-            String message, connect = "Connect", disconnect = "Disconnect", chat = "Chat",send="Send",receive="Receive";
+        public void run()
+        {
+            String message, connect = "Connect", disconnect = "Disconnect", chat = "Chat", send = "Send", receive = "Receive";
             String[] data;
             try {
                 while ((message = reader.readLine()) != null) {
                     ta_chat.append("Received- " + message + "\n");
                     data = message.split("-");
-
                     for (String token : data) {
                         ta_chat.append(token + "\n");
                     }
@@ -45,21 +44,13 @@ public class server_frame extends javax.swing.JFrame {
                         userRemove(data[0]);
                     } else if (data[2].equals(chat)) {
                         tellEveryone(message);
-                    }
-
-                    else if (data[2].equals(send)) {
-                        System.out.println("Yes received till this point");
-                        receiveFile();
+                    } else if (data[2].equals(send)) {
                         tellEveryone((data[0] + "-" + data[1] + "-" + send));
-
-                    }
-                    else if (data[2].equals(receive)) {
-                        System.out.println(data[1]);
-                        sendFile(data[1]);
+                        receiveFile();
+                    } else if (data[2].equals(receive)) {
                         tellEveryone((data[0] + "-" + data[1] + "-" + receive));
-                    }
-
-                    else {
+                        sendFile(data[1]);
+                    } else {
                         ta_chat.append("No Conditions were met. \n");
                     }
                 }
@@ -68,20 +59,18 @@ public class server_frame extends javax.swing.JFrame {
                 ex.printStackTrace();
                 clientOutputStreams.remove(client);
             }
-
-
         }
     }
 
-    public void receiveFile() {
+    //function to receive file from client
+    public void receiveFile()
+    {
         try {
             int bytesRead;
-
             DataInputStream clientData = new DataInputStream(sock.getInputStream());
-
+            //receiving file name and file size from client
             String fileName = clientData.readUTF();
-
-            System.out.println("Received file"+fileName);
+            //System.out.println("Received file"+fileName);
             OutputStream output = new FileOutputStream(fileName);
             long size = clientData.readLong();
             byte[] buffer = new byte[1024];
@@ -89,98 +78,60 @@ public class server_frame extends javax.swing.JFrame {
                 output.write(buffer, 0, bytesRead);
                 size -= bytesRead;
             }
-
-//            System.out.println(Arrays.toString(buffer));
-
             output.flush();
-
-            System.out.println("File "+fileName+" received from client.");
-        } catch (Exception ex) {
+            //System.out.println("File "+fileName+" received from client.");
+        }catch (Exception ex)
+        {
             System.err.println("Client error. Connection closed.");
         }
     }
 
-    public void sendFile(String fileName) {
-        System.out.println(fileName);
+    //function to send file to client
+    public void sendFile(String fileName)
+    {
+        //System.out.println(fileName);
         try {
 
-            File myFile = new File(fileName);  //handle file reading
+            File myFile = new File(fileName);
             byte[] mybytearray = new byte[(int) myFile.length()];
-
             if(!myFile.exists()) {
                 System.out.println("File does not exist..");
                 return;
             }
-
             FileInputStream fis = new FileInputStream(myFile);
             BufferedInputStream bis = new BufferedInputStream(fis);
-
             DataInputStream dis = new DataInputStream(bis);
             dis.readFully(mybytearray, 0, mybytearray.length);
+            //System.out.println(Arrays.toString(mybytearray));
+            OutputStream os = sock.getOutputStream();
 
-            System.out.println(Arrays.toString(mybytearray));
-
-
-            OutputStream os = sock.getOutputStream();  //handle file send over socket
-
-            DataOutputStream dos = new DataOutputStream(os); //Sending file name and file size to the server
-//            dos.writeUTF(myFile.getName());
-//            dos.writeLong(mybytearray.length);
-            dos.write(mybytearray);
+            //sending file name and file size to client
+            DataOutputStream dos = new DataOutputStream(os);
+            dos.writeUTF(myFile.getName());
+            dos.writeLong(mybytearray.length);
+            dos.write(mybytearray, 0, mybytearray.length);
             dos.flush();
-            System.out.println("File "+fileName+" sent to client.");
+            //System.out.println("File "+fileName+" sent to client.");
         } catch (Exception e) {
             System.err.println("File does not exist!");
         }
     }
 
-//    public void sendFile(String fileName) {
-//        try {
-//
-//            File myFile = new File(fileName);
-//            byte[] mybytearray = new byte[(int) myFile.length()];
-//            if(!myFile.exists()) {
-//                System.out.println("File does not exist..");
-//                return;
-//            }
-//
-//            FileInputStream fis = new FileInputStream(myFile);
-//            BufferedInputStream bis = new BufferedInputStream(fis);
-//            //bis.read(mybytearray, 0, mybytearray.length);
-//
-//            DataInputStream dis = new DataInputStream(bis);
-//            dis.readFully(mybytearray, 0, mybytearray.length);
-//
-//            OutputStream os = sock.getOutputStream();
-//
-//            //Sending file name and file size to the server
-//            DataOutputStream dos = new DataOutputStream(os);
-//            dos.writeUTF(myFile.getName());
-//            dos.writeLong(mybytearray.length);
-//            dos.write(mybytearray, 0, mybytearray.length);
-//            dos.flush();
-//            System.out.println("File "+fileName+" sent to Client.");
-//        } catch (Exception e) {
-//            System.err.println("Exceptionnnn: "+e);
-//        }
-//    }
-
-    public server_frame() {
+    public server_frame()
+    {
         initComponents();
     }
 
-
-    private void initComponents() {
+    //user interface design
+    private void initComponents()
+    {
         jScrollPane1 = new javax.swing.JScrollPane();
         ta_chat = new javax.swing.JTextArea();
         b_start = new javax.swing.JButton();
         b_end = new javax.swing.JButton();
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-
         setTitle("Virtual Classroom Server's frame");
         setName("server");
-
         setResizable(false);
         ta_chat.setColumns(20);
         ta_chat.setRows(5);
@@ -191,7 +142,6 @@ public class server_frame extends javax.swing.JFrame {
         b_end.setText("STOP CLASSROOM SERVER");
         b_end.setBackground(Color.orange);
         b_end.addActionListener(evt -> b_endActionPerformed(evt));
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -227,20 +177,16 @@ public class server_frame extends javax.swing.JFrame {
         );
         pack();
     }
-
     private void b_endActionPerformed(java.awt.event.ActionEvent evt) {
         tellEveryone("Virtual Classroom Server:is stopping and all users will be disconnected.\n:Chat");
         ta_chat.append("Virtual Classroom Server stopping... \n");
         System.exit(0);
-
     }
-
     private void b_startActionPerformed(java.awt.event.ActionEvent evt) {
         Thread starter = new Thread(new ServerStart());
         starter.start();
         ta_chat.append("Virtual Classroom Server started...\n");
     }
-
     private void b_usersActionPerformed(java.awt.event.ActionEvent evt) {
         ta_chat.append("\n Online users are : \n");
         for (String current_user : users) {
@@ -248,11 +194,9 @@ public class server_frame extends javax.swing.JFrame {
             ta_chat.append("\n");
         }
     }
-
     private void b_clearActionPerformed(java.awt.event.ActionEvent evt) {
         ta_chat.setText("");
     }
-
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
@@ -260,11 +204,9 @@ public class server_frame extends javax.swing.JFrame {
                 server_frame sf = new server_frame();
                 sf.setVisible(true);
                 sf.setBackground(Color.orange);
-
             }
         });
     }
-
     public class ServerStart implements Runnable {
         @Override
         public void run() {
@@ -274,7 +216,6 @@ public class server_frame extends javax.swing.JFrame {
                 ServerSocket serverSock = new ServerSocket(0007);
                 serverSocket = serverSock;
                 while (true) {
-
                     Socket clientSock = serverSock.accept();
                     PrintWriter writer = new PrintWriter(clientSock.getOutputStream());
                     clientOutputStreams.add(writer);
@@ -282,14 +223,12 @@ public class server_frame extends javax.swing.JFrame {
                     Thread listener = new Thread(new ClientHandler(clientSock, writer));
                     listener.start();
                     ta_chat.append("Yes we got a connection!! \n");
-
                 }
             } catch (Exception ex) {
                 ta_chat.append("Error making a connection.. \n");
             }
         }
     }
-
     public void userAdd(String data) {
         String message, add = "- -Connect", done = "Server- -Done", name = data;
         ta_chat.append("Before " + name + " added. \n");
@@ -303,7 +242,6 @@ public class server_frame extends javax.swing.JFrame {
         }
         tellEveryone(done);
     }
-
     public void userRemove(String data) {
         String message, add = "- -Connect", done = "Server- -Done", name = data;
         users.remove(name);
@@ -315,32 +253,27 @@ public class server_frame extends javax.swing.JFrame {
         }
         tellEveryone(done);
     }
-
     public void tellEveryone(String message) {
         Iterator it = clientOutputStreams.iterator();
         while (it.hasNext()) {
             try
-
             {
                 PrintWriter writer = (PrintWriter) it.next();
-
                 writer.println(message);
                 ta_chat.append("Sending- " + message + "\n");
-
                 writer.flush();
                 ta_chat.setCaretPosition(ta_chat.getDocument().getLength());
             }
             catch(Exception ex)
             {
-
                 ta_chat.append("Error telling everyone. \n");
-
             }
         }
     }
+
+    //variables declaration
     private javax.swing.JButton b_end;
     private javax.swing.JButton b_start;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea ta_chat;
-
 }
