@@ -9,6 +9,7 @@ public class server_frame extends javax.swing.JFrame {
     ArrayList<String> users;
     Socket sock;
     ServerSocket serverSocket;
+    char type;
 
     public class ClientHandler implements Runnable
     {
@@ -33,6 +34,7 @@ public class server_frame extends javax.swing.JFrame {
                 while ((message = reader.readLine()) != null) {
                     ta_chat.append("Received- " + message + "\n");
                     data = message.split("-");
+                    type = data[0].charAt(0);
                     for (String token : data) {
                         ta_chat.append(token + "\n");
                     }
@@ -54,7 +56,7 @@ public class server_frame extends javax.swing.JFrame {
                         ta_chat.append("No Conditions were met. \n");
                     }
                 }
-            } catch (Exception ex) {
+            } catch (IOException ex) {
                 ta_chat.append("Lost a connection. \n");
                 ex.printStackTrace();
                 clientOutputStreams.remove(client);
@@ -62,7 +64,7 @@ public class server_frame extends javax.swing.JFrame {
         }
     }
 
-    //function to receive file from client
+    //function to receive file from client/
     public void receiveFile()
     {
         try {
@@ -79,6 +81,29 @@ public class server_frame extends javax.swing.JFrame {
                 size -= bytesRead;
             }
             output.flush();
+
+            //copying content to a new file
+
+
+            File old_fileName = new File(fileName);
+
+            File new_fileName = new File(type+fileName);
+            new_fileName.createNewFile();
+
+            FileInputStream ins = null;
+            FileOutputStream outs = null;
+
+            ins = new FileInputStream(old_fileName);
+            outs = new FileOutputStream(new_fileName);
+            byte[] buffer1 = new byte[1024];
+            int length;
+
+            while ((length = ins.read(buffer)) > 0) {
+                outs.write(buffer, 0, length);
+            }
+            ins.close();
+            outs.close();
+
             //System.out.println("File "+fileName+" received from client.");
         }catch (Exception ex)
         {
@@ -86,16 +111,22 @@ public class server_frame extends javax.swing.JFrame {
         }
     }
 
-    //function to send file to client
+    //function to send file to client/
     public void sendFile(String fileName)
     {
         //System.out.println(fileName);
         try {
+            if(type=='S'){
+                fileName ='T'+fileName;
+            }
 
             File myFile = new File(fileName);
             byte[] mybytearray = new byte[(int) myFile.length()];
             if(!myFile.exists()) {
-                System.out.println("File does not exist..");
+                if(type=='T')
+                    System.out.println("File does not exist..");
+                else
+                    System.out.println("File not uploaded by teacher or you do not have access");
                 return;
             }
             FileInputStream fis = new FileInputStream(myFile);
@@ -122,7 +153,7 @@ public class server_frame extends javax.swing.JFrame {
         initComponents();
     }
 
-    //user interface design
+    //user interface design/
     private void initComponents()
     {
         jScrollPane1 = new javax.swing.JScrollPane();
