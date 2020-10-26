@@ -10,6 +10,7 @@ public class server_frame extends javax.swing.JFrame {
     Socket sock;
     ServerSocket serverSocket;
     char type;
+    String username;
 
     public class ClientHandler implements Runnable
     {
@@ -35,6 +36,7 @@ public class server_frame extends javax.swing.JFrame {
                     ta_chat.append("Received- " + message + "\n");
                     data = message.split("-");
                     type = data[0].charAt(0);
+                    username = data[0];
                     for (String token : data) {
                         ta_chat.append(token + "\n");
                     }
@@ -111,8 +113,8 @@ public class server_frame extends javax.swing.JFrame {
     }
 
     //function to send file to client/
-    public void sendFile(String fileName)
-    {
+    public void sendFile(String fileName) throws IOException {
+        String copy = fileName;
         //System.out.println(fileName);
         try {
             if(type=='S'){
@@ -122,8 +124,8 @@ public class server_frame extends javax.swing.JFrame {
             File myFile = new File(fileName);
             byte[] mybytearray = new byte[(int) myFile.length()];
             if(!myFile.exists()) {
-                    System.out.println("File not uploaded by teacher or you do not have access");
-                return;
+//                    System.out.println("File not uploaded by teacher");
+                    throw new Exception();
             }
             FileInputStream fis = new FileInputStream(myFile);
             BufferedInputStream bis = new BufferedInputStream(fis);
@@ -137,10 +139,28 @@ public class server_frame extends javax.swing.JFrame {
             dos.writeUTF(myFile.getName());
             dos.writeLong(mybytearray.length);
             dos.write(mybytearray, 0, mybytearray.length);
+            dos.flush();
             dos.close();
             //System.out.println("File "+fileName+" sent to client.");
         } catch (Exception e) {
-            System.err.println("File does not exist!");
+//            System.err.println("File does not exist!");
+            tellEveryone((username + "-" + copy + "-" + "CANNOT SEND THE FILE"));
+            File original_fileName =new File(copy);
+            byte[] mybytearray = new byte[(int) original_fileName.length()];
+            FileInputStream fis = new FileInputStream(original_fileName);
+            BufferedInputStream bis = new BufferedInputStream(fis);
+            DataInputStream dis = new DataInputStream(bis);
+            dis.readFully(mybytearray, 0, mybytearray.length);
+            //System.out.println(Arrays.toString(mybytearray));
+            OutputStream os = sock.getOutputStream();
+
+            //sending file name and file size to client
+            DataOutputStream dos = new DataOutputStream(os);
+            dos.writeUTF(original_fileName.getName());
+            dos.writeLong(mybytearray.length);
+            dos.write(mybytearray, 0, mybytearray.length);
+            dos.close();
+
         }
     }
 
