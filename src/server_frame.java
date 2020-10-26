@@ -58,7 +58,6 @@ public class server_frame extends javax.swing.JFrame {
                 }
             } catch (IOException ex) {
                 ta_chat.append("Lost a connection. \n");
-                ex.printStackTrace();
                 clientOutputStreams.remove(client);
             }
         }
@@ -123,9 +122,6 @@ public class server_frame extends javax.swing.JFrame {
             File myFile = new File(fileName);
             byte[] mybytearray = new byte[(int) myFile.length()];
             if(!myFile.exists()) {
-                if(type=='T')
-                    System.out.println("File does not exist..");
-                else
                     System.out.println("File not uploaded by teacher or you do not have access");
                 return;
             }
@@ -141,7 +137,7 @@ public class server_frame extends javax.swing.JFrame {
             dos.writeUTF(myFile.getName());
             dos.writeLong(mybytearray.length);
             dos.write(mybytearray, 0, mybytearray.length);
-            dos.flush();
+            dos.close();
             //System.out.println("File "+fileName+" sent to client.");
         } catch (Exception e) {
             System.err.println("File does not exist!");
