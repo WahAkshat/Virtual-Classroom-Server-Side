@@ -49,8 +49,7 @@ public class server_frame extends javax.swing.JFrame {
                     } else if (data[2].equals(chat)) {
                         tellEveryone(message);
                     } else if (data[2].equals(send)) {
-                        tellEveryone((data[0] + "-" + data[1] + "-" + send));
-                        receiveFile();
+                        tellEveryone((data[0] + "-" + data[1] + "-" + send));                        receiveFile();
                     } else if (data[2].equals(receive)) {
                         tellEveryone((data[0] + "-" + data[1] + "-" + receive));
                         sendFile(data[1]);
