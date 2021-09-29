@@ -1,5 +1,7 @@
 # Virtual-Classroom-Server-Side
 
+Project published: https://coderspacket.com/brick-breaker-game-in-java-1625996450824
+
 Main .java file in src
 
 This is a group chat application making use of the client-server architecture concept, built using socket programming in Java, making use of package java.awt, package javax.swing.
